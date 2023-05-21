@@ -37,4 +37,7 @@ public class UserService {
         UserEntity userEntity = userRepository.findByUsername(authenticatedUserName).orElseThrow(IllegalStateException::new);
         return userEntity.getId();
     }
+    public UserEntity getCurrentUserEntity() {
+        return userRepository.findById(getCurrentUserId()).get();
+    }
 }

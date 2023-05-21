@@ -30,7 +30,7 @@ public class EventEntity {
     @Column(name = "image")
     private String image;
 
-    @Column(columnDefinition = "geometry(Point, 4326)")
+    @Column(name = "coordinates")
     private Point coordinates;
 
     @Column(name = "start_date")
