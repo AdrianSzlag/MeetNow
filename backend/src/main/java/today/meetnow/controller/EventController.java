@@ -2,6 +2,7 @@ package today.meetnow.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import today.meetnow.model.dto.EventCreationDto;
 import today.meetnow.model.dto.EventDto;
 import today.meetnow.model.dto.SearchFiltersDto;
 import today.meetnow.service.EventService;
@@ -19,6 +20,10 @@ public class EventController {
     public List<EventDto> getEvents(@RequestBody SearchFiltersDto searchFilters) {
         throw new IllegalStateException("Not implemented yet!");
         //TODO: create and use service for retrieving events by given search filters
+    }
+    @PostMapping("/create")
+    public EventDto createEvent(@RequestBody EventCreationDto eventCreationDto) {
+        return eventService.createEvent(eventCreationDto);
     }
     @GetMapping("/participation")
     public List<EventDto> getParticipatedEvents() {

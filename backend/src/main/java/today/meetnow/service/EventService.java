@@ -2,17 +2,18 @@ package today.meetnow.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.springframework.stereotype.Service;
-import today.meetnow.model.EventEntity;
-import today.meetnow.model.EventPostEntity;
-import today.meetnow.model.HostEntity;
-import today.meetnow.model.ParticipantEntity;
-import today.meetnow.model.dto.EventDto;
-import today.meetnow.model.dto.EventPostDto;
-import today.meetnow.model.dto.HostDto;
-import today.meetnow.model.dto.ParticipantDto;
+import org.springframework.transaction.annotation.Transactional;
+import today.meetnow.model.*;
+import today.meetnow.model.dto.*;
 import today.meetnow.repository.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +55,7 @@ public class EventService {
                 .description(eventEntity.getDescription())
                 .type(eventEntity.getType())
                 .image(eventEntity.getImage())
-                .coordinates(eventEntity.getCoordinates().getCoordinates())
+                .coordinates(eventEntity.getCoordinates().getCoordinates()[0])
                 .host(hostDto)
                 .participants(participantDtoList)
                 .posts(eventPostDtoList)
@@ -87,5 +88,40 @@ public class EventService {
                 .image(ent.getImage())
                 .title(ent.getTitle())
                 .build();
+    }
+
+    @Transactional
+    public EventDto createEvent(EventCreationDto eventCreationDto) {
+        LocalDateTime startDate = eventCreationDto.getStartDate();
+
+        EventEntity eventEntity = new EventEntity();
+        if (startDate == null) {
+            startDate = LocalDateTime.now();
+        }
+        eventEntity.setStartDate(eventCreationDto.getStartDate());
+        eventEntity.setEndDate(eventCreationDto.getEndDate());
+        eventEntity.setTitle(eventCreationDto.getTitle());
+        eventEntity.setType(eventCreationDto.getType().getName());
+        eventEntity.setDescription(eventCreationDto.getDescription());
+        eventEntity.setCoordinates(convertCoordinatesToPoint(eventCreationDto.getCoordinates()));
+        eventEntity.setImage(eventCreationDto.getImage());
+
+        EventEntity event = eventRepository.save(eventEntity);
+        UserEntity user = userService.getCurrentUserEntity();
+
+        HostEntity host = new HostEntity();
+        host.setEvent(event);
+        host.setUser(user);
+        hostRepository.save(host);
+
+        return convertToEventDto(event);
+    }
+
+    private Point convertCoordinatesToPoint(Coordinate coordinate) {
+        GeometryFactory factory = new GeometryFactory();
+        Coordinate[] coordinates = new Coordinate[] { coordinate };
+        CoordinateSequence coordinateSequence = new CoordinateArraySequence(coordinates);
+
+        return new Point(coordinateSequence, factory);
     }
 }

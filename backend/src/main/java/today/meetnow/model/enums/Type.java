@@ -1,12 +1,15 @@
 package today.meetnow.model.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Type {
     PARTY("Party"),
     SPORT("Sport"),
     EVENT("Event");
 
-    private String type;
-    Type(String type) {
-        this.type = type;
+    private String name;
+    Type(String name) {
+        this.name = name;
     }
 }

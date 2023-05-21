@@ -4,24 +4,27 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.locationtech.jts.geom.Coordinate;
+import today.meetnow.model.enums.Type;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.List;
-
 
 @Getter
 @Setter
 @Builder
-public class EventDto {
-    private Long id;
+public class EventCreationDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    @NotNull
+    @NotBlank
     private String title;
     private String description;
-    private String type;
+    @NotNull
+    private Type type;
+    @NotNull
+    @NotBlank
     private String image;
+    @NotNull
     private Coordinate coordinates;
-    private HostDto host;
-    private List<ParticipantDto> participants;
-    private List<EventPostDto> posts;
 }
