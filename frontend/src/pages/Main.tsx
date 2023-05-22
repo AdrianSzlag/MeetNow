@@ -24,7 +24,7 @@ const Main = () => {
   const onChangeAppStateHandler = (state: "main" | "memories") => {
     setAppState(state);
   };
-
+  
   return (
     <div className="z-5 flex w-screen flex-col">
       <EventsDataProvider>
@@ -43,14 +43,14 @@ const Main = () => {
             />
           )}
           {createEventPopupOpen && (
-            <div className="fixed inset-0 flex items-center justify-center z-50">
-              <div className="bg-white w-96 p-6 rounded-lg">
+            <div className="fixed inset-0 flex items-center justify-center z-50 ">
+              <div className="bg-white sm:w-96 sm:h-auto p-6 rounded-lg h-screen w-screen">
               <button
                   className="relative top-0 left-0 p-2 text-black"
                   onClick={() => setCreateEventPopupOpen(false)}
                 >X
                   </button>
-                <EventForm onSuccess={() => setCreateEventPopupOpen(false)} />
+                <EventForm onSuccess={() => setCreateEventPopupOpen(false) } />
               </div>
             </div>
           )}

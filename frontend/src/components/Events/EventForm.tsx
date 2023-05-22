@@ -7,6 +7,7 @@ import DateTime from "../Login/DateTime";
 import { setToken } from "../../utils/auth";
 import { useNavigate } from "react-router-dom";
 import EventTypeSelect from "../Login/EventTypeSelect";
+import CoordinatesInput from "../Login/CoordinatesInput";
 
 enum Type {
   PARTY = "Party",
@@ -78,6 +79,12 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
     setEventData({ ...eventData, type: selectedType });
   };
 
+  const [formCoordinates, setFormCoordinates] = useState<[number, number] | null>(null);
+
+  const handleCoordinateChange = (newCoordinates: [number, number] | null) => {
+    setFormCoordinates(newCoordinates);
+  };
+
   return (
     <Form onSubmit={onSubmitHandler}>
       <h1 className="text-lg font-bold text-center p-2">Add an Event</h1>
@@ -125,17 +132,7 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
 
       <EventTypeSelect onChange={handleEventTypeChange} />
 
-      <Input
-        name="coordinates"
-        title="Coordinates"
-        type="text"
-        placeholder="Coordinates"
-        value={coordinates || ""}
-        onChange={(value) => setEventData({ ...eventData, coordinates: value || null })}
-        isValid={coordinates !== null}
-        errorMessage="Please enter valid event coordinates."
-      />
-
+     <CoordinatesInput onCoordinateChange={handleCoordinateChange}/>
       <Button text={"Add Event"} disabled={!formValid} loading={loading} />
     </Form>
   );
