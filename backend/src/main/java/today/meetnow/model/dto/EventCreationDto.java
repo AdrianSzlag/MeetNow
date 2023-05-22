@@ -22,8 +22,6 @@ public class EventCreationDto {
     private String description;
     @NotNull
     private Type type;
-    @NotNull
-    @NotBlank
     private String image;
     @NotNull
     private Coordinate coordinates;
