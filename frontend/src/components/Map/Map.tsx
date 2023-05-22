@@ -40,7 +40,7 @@ export default function MyMap() {
   const { focusedEvent, setFocusedEvent } = useFocus();
   const [center, setCenter] = useState<Point>(defaultCenter);
   const [bounds, setBounds] = useState<Bounds>();
-
+  const [clickedCoordinates, setClickedCoordinates] = useState<Point | null>(null);
   const [viewport, setVievport] = useState<Viewport>({ height: 0, width: 0 });
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {

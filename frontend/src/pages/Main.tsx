@@ -7,6 +7,7 @@ import { EventsDataProvider } from "../hooks/EventsDataProvider";
 import { EventsFocusProvider } from "../hooks/EventsFocusProvider";
 import { useNavigate } from "react-router-dom";
 import { getToken } from "../utils/auth";
+import EventForm from "../components/Events/EventForm";
 
 const Main = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Main = () => {
   const onChangeAppStateHandler = (state: "main" | "memories") => {
     setAppState(state);
   };
-
+  
   return (
     <div className="z-5 flex w-screen flex-col">
       <EventsDataProvider>
@@ -41,7 +42,18 @@ const Main = () => {
               showCreateEventPopup={() => setCreateEventPopupOpen(true)}
             />
           )}
-          */
+          {createEventPopupOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 ">
+              <div className="bg-white sm:w-96 sm:h-auto p-6 rounded-lg h-screen w-screen">
+              <button
+                  className="relative top-0 left-0 p-2 text-black"
+                  onClick={() => setCreateEventPopupOpen(false)}
+                >X
+                  </button>
+                <EventForm onSuccess={() => setCreateEventPopupOpen(false) } />
+              </div>
+            </div>
+          )}
         </EventsFocusProvider>
       </EventsDataProvider>
     </div>
