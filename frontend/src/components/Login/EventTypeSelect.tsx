@@ -1,9 +1,9 @@
 import { useState } from "react";
 
 enum Type {
-  PARTY = "Party",
-  SPORT = "Sport",
-  EVENT = "Event",
+  PARTY = "PARTY",
+  SPORT = "SPORT",
+  EVENT = "EVENT",
 }
 
 interface EventTypeSelectProps {

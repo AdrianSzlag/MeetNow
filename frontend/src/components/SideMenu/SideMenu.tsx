@@ -52,8 +52,10 @@ export default function SideMenu({ onChangeAppState }: Props) {
             Icon={HiStar}
             onClick={() => onSetAppState("main")}
           />
+          
+          {/* To do but not know functionality
           <Button text="Friends" Icon={HiUserGroup} />
-          <Button text="Messages" Icon={HiEnvelope} />
+          <Button text="Messages" Icon={HiEnvelope} />*/}
           <Button
             text="Memories"
             Icon={IoMdImages}
