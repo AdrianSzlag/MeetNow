@@ -11,10 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import today.meetnow.model.*;
 import today.meetnow.model.dto.*;
+import today.meetnow.model.enums.Type;
 import today.meetnow.repository.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +38,13 @@ public class EventService {
                 .collect(Collectors.toList());
     }
     public EventDto convertToEventDto(EventEntity eventEntity) {
-        var hostDto = convertToHostDto(hostRepository.findByEventId(eventEntity.getId()).get());
+        Long eventId = eventEntity.getId();
+        var optionalHostEntity = hostRepository.findByEventId(eventId);
+        if (optionalHostEntity.isEmpty()) {
+            throw new IllegalStateException("No host of event with id " + eventId);
+        }
+        var hostEntity = optionalHostEntity.get();
+        var hostDto = convertToHostDto(hostEntity);
 
         List<ParticipantDto> participantDtoList = participantRepository.findAllByEventId(eventEntity.getId())
                 .stream()
@@ -82,12 +91,12 @@ public class EventService {
                 .build();
     }
     private EventPostDto convertToEventPostDto(EventPostEntity ent) {
-        return EventPostDto.builder()
-                .id(ent.getId())
-                .userId(ent.getUserId())
-                .image(ent.getImage())
-                .title(ent.getTitle())
-                .build();
+            return EventPostDto.builder()
+                    .id(ent.getId())
+                    .userId(ent.getUserId())
+                    .image(ent.getImage())
+                    .title(ent.getTitle())
+                    .build();
     }
 
     @Transactional
@@ -123,5 +132,47 @@ public class EventService {
         CoordinateSequence coordinateSequence = new CoordinateArraySequence(coordinates);
 
         return new Point(coordinateSequence, factory);
+    }
+
+    public List<EventDto> getEventsBySearchFilters(SearchFiltersDto searchFilters) {
+      throw new IllegalStateException("Not implemented yet!");
+      //TODO
+    }
+
+    public List<EventDto> getEventsByType(Type type) {
+        return eventRepository.findAllByType(type.getName())
+                .stream()
+                .map(this::convertToEventDto)
+                .collect(Collectors.toList());
+    }
+    @Transactional
+    public EventDto participateInEvent(Long eventId) {
+
+        Optional<EventEntity> optionalEventEntity = eventRepository.findById(eventId);
+        if (optionalEventEntity.isEmpty()) {
+            throw new EntityNotFoundException("Couldn't find event of id " + eventId);
+        }
+        EventEntity eventEntity = optionalEventEntity.get();
+        UserEntity user = userService.getCurrentUserEntity();
+
+        ParticipantEntity participant = new ParticipantEntity();
+
+        participant.setEvent(eventEntity);
+        participant.setUser(user);
+        participantRepository.save(participant);
+
+        return convertToEventDto(eventEntity);
+    }
+
+    public EventDto getHostedEvents() {
+        var currentUserId = userService.getCurrentUserId();
+        var optionalHost = hostRepository.findByUserId(currentUserId);
+        if (optionalHost.isEmpty() || optionalHost.get().getEvent() == null) {
+            throw new EntityNotFoundException("You're not hosting any events");
+        }
+        HostEntity host = optionalHost.get();
+        EventEntity eventEntity = host.getEvent();
+
+        return convertToEventDto(eventEntity);
     }
 }
