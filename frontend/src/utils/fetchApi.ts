@@ -6,11 +6,17 @@ const fetchApi = async (path: string, options: RequestInit) => {
   if (!options.headers) {
     options.headers = {} as HeadersInit;
   }
+  if (path !== "/register" && path !== "/login"){
+      options.headers = {
+      ...options.headers,
+      Authorization: `Bearer ${getToken()}`,
+    };
+  }
   options.headers = {
     ...options.headers,
     "Content-Type": "application/json",
-    Authorization: `Bearer ${getToken()}`,
   };
+  
   //options.mode = "no-cors";
   const url = `${apiUrl}${path}`;
 

@@ -79,9 +79,8 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
 
   const handleCoordinateChange = (newCoordinates: [number, number] | null) => {
     setFormCoordinates(newCoordinates);
+    setEventData({ ...eventData, coordinates: newCoordinates ? { x: newCoordinates[0], y: newCoordinates[1] } : null });
   };
-
-  //hello mordo 
   return (
     <Form onSubmit={onSubmitHandler}>
       <h1 className="text-lg font-bold text-center p-2">Add an Event</h1>

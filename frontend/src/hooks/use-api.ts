@@ -45,7 +45,7 @@ const useApi = <T>(path: string, options?: RequestInit) => {
     } else {
       if (!response.ok) {
         try {
-          json = (await response.json()) as { message: string };
+          let json = (await response.json()) as { message: string };
           console.log(json);
           if (json.message) {
             setError(`${json.message}`);
