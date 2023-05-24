@@ -10,9 +10,9 @@ import EventTypeSelect from "../Login/EventTypeSelect";
 import CoordinatesInput from "../Login/CoordinatesInput";
 
 enum Type {
-  PARTY = "Party",
-  SPORT = "Sport",
-  EVENT = "Event",
+  PARTY = "PARTY",
+  SPORT = "SPORT",
+  EVENT = "EVENT",
 }
 
 interface EventCreationDto {
@@ -21,7 +21,7 @@ interface EventCreationDto {
   title: string;
   description: string;
   type: Type | null;
-  coordinates: string | null;
+  coordinates: { x: number; y: number } | null;
 }
 
 interface Props {
@@ -30,7 +30,7 @@ interface Props {
 
 const EventForm: React.FC<Props> = ({ onSuccess }) => {
   const navigate = useNavigate();
-  const { response, loading, error, fetch } = useApi("/events", {
+  const { response, loading, error, fetch } = useApi("/api/events/create", {
     method: "POST",
   });
 
@@ -46,21 +46,17 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
   const { startDate, endDate, title, description, type, coordinates } =
     eventData;
 
-  const validEvent =
-    title.length > 0 &&
-    type !== null &&
-    coordinates !== null &&
-    startDate !== null &&
-    endDate !== null &&
-    endDate > startDate;
+  const titleValid = title.length > 0;
+  const descValid = description.length > 0;
+  const startValid = startDate !== null;
+  const endValid = endDate !== null && startDate !== null && endDate > startDate;
 
+  const validEvent = titleValid && descValid && startValid && endValid;
+  
   const formValid = validEvent && !loading;
 
-  const onLoginHandler = () => {
-    navigate("/login");
-  };
-
   const onSubmitHandler = () => {
+   
     if (!formValid) return;
     fetch(eventData);
   };
@@ -85,6 +81,7 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
     setFormCoordinates(newCoordinates);
   };
 
+  //hello mordo 
   return (
     <Form onSubmit={onSubmitHandler}>
       <h1 className="text-lg font-bold text-center p-2">Add an Event</h1>
@@ -97,7 +94,7 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
         placeholder="Title"
         value={title}
         onChange={(value) => setEventData({ ...eventData, title: value })}
-        isValid={title.length > 0}
+        isValid={titleValid}
         errorMessage="Please enter a valid title."
       />
 
@@ -107,7 +104,7 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
         type="text"
         placeholder="Description"
         value={description}
-        isValid={description.length > 0}
+        isValid={descValid}
         onChange={(value) => setEventData({ ...eventData, description: value })}
         errorMessage="Please enter a valid description."
       />
@@ -117,7 +114,7 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
         title="Start Date"
         value={startDate || ""}
         onChange={(value) => setEventData({ ...eventData, startDate: value || null })}
-        isValid={startDate !== null}
+        isValid={startValid}
         errorMessage="Please enter a valid start date."
       />
 
@@ -126,13 +123,13 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
         title="End Date"
         value={endDate || ""}
         onChange={(value) => setEventData({ ...eventData, endDate: value || null })}
-        isValid={endDate !== null && startDate !== null && endDate > startDate}
+        isValid={endValid}
         errorMessage="Please enter a valid end date."
       />
 
       <EventTypeSelect onChange={handleEventTypeChange} />
 
-     <CoordinatesInput onCoordinateChange={handleCoordinateChange}/>
+      <CoordinatesInput onCoordinateChange={handleCoordinateChange} />
       <Button text={"Add Event"} disabled={!formValid} loading={loading} />
     </Form>
   );

@@ -44,7 +44,20 @@ const useApi = <T>(path: string, options?: RequestInit) => {
       }
     } else {
       if (!response.ok) {
-        setError(`Pawel nie ustawil error message! (${response.status})`);
+        try {
+          json = (await response.json()) as { message: string };
+          console.log(json);
+          if (json.message) {
+            setError(`${json.message}`);
+          }
+          else {
+            throw new Error('Could not read error message!');
+          }
+        }
+        catch (e){
+
+          setError(`Could not read error message (${response.status})`);
+        }
       }
     }
     setLoading(false);

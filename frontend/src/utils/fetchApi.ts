@@ -9,7 +9,7 @@ const fetchApi = async (path: string, options: RequestInit) => {
   options.headers = {
     ...options.headers,
     "Content-Type": "application/json",
-    Authentication: `Bearer ${getToken()}`,
+    Authorization: `Bearer ${getToken()}`,
   };
   //options.mode = "no-cors";
   const url = `${apiUrl}${path}`;

@@ -15,7 +15,6 @@ const Login = () => {
   }, []);
 
   const onSuccessHandler = () => {
-    setToken("token");
     navigate("/");
   };
 
