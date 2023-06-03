@@ -28,9 +28,8 @@ public class EventController {
         return eventService.participateInEvent(eventId);
     }
     @GetMapping
-    public List<EventDto> getEvents(@RequestBody SearchFiltersDto searchFilters) {
-        return eventService.getEventsBySearchFilters(searchFilters);
-        //TODO: create and use service for retrieving events by given search filters
+    public List<EventDto> getAllEvents() {
+        return eventService.getAllEvents();
     }
     @PostMapping("/create")
     public EventDto createEvent(@RequestBody EventCreationDto eventCreationDto) {
