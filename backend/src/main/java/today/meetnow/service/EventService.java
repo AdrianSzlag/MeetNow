@@ -134,11 +134,6 @@ public class EventService {
         return new Point(coordinateSequence, factory);
     }
 
-    public List<EventDto> getEventsBySearchFilters(SearchFiltersDto searchFilters) {
-      throw new IllegalStateException("Not implemented yet!");
-      //TODO
-    }
-
     public List<EventDto> getEventsByType(Type type) {
         return eventRepository.findAllByType(type.getName())
                 .stream()
@@ -174,5 +169,11 @@ public class EventService {
         EventEntity eventEntity = host.getEvent();
 
         return convertToEventDto(eventEntity);
+    }
+
+    public List<EventDto> getAllEvents() {
+        return eventRepository.findAll().stream()
+                .map(this::convertToEventDto)
+                .collect(Collectors.toList());
     }
 }
