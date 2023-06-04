@@ -34,6 +34,7 @@ public class EventService {
         return eventRepository.findAllByUserId(currentUserId)
                 .stream()
                 .map(this::convertToEventDto)
+                .filter(e -> e.getEndDate().isAfter(LocalDateTime.now()))
                 .collect(Collectors.toList());
     }
     public EventShortDto convertToEventShortDto(EventEntity eventEntity) {
@@ -162,6 +163,7 @@ public class EventService {
         return eventRepository.findAllByType(type.getName())
                 .stream()
                 .map(this::convertToEventShortDto)
+                .filter(e -> e.getEndDate().isAfter(LocalDateTime.now()))
                 .collect(Collectors.toList());
     }
     @Transactional
@@ -186,7 +188,8 @@ public class EventService {
     public EventDto getHostedEvents() {
         var currentUserId = userService.getCurrentUserId();
         var optionalHost = hostRepository.findByUserId(currentUserId);
-        if (optionalHost.isEmpty() || optionalHost.get().getEvent() == null) {
+        if (optionalHost.isEmpty() || optionalHost.get().getEvent() == null ||
+                optionalHost.get().getEvent().getEndDate().isBefore(LocalDateTime.now())) {
             throw new EntityNotFoundException("You're not hosting any events");
         }
         HostEntity host = optionalHost.get();
@@ -198,6 +201,7 @@ public class EventService {
     public List<EventShortDto> getAllEvents() {
         return eventRepository.findAll().stream()
                 .map(this::convertToEventShortDto)
+                .filter(e -> e.getEndDate().isAfter(LocalDateTime.now()))
                 .collect(Collectors.toList());
     }
 
@@ -226,12 +230,14 @@ public class EventService {
     private List<EventShortDto> getEventsByTypeAndTitle(Type type, String title) {
         return this.eventRepository.findAllByTypeAndTitle(type.getName(), title).stream()
                 .map(this::convertToEventShortDto)
+                .filter(e -> e.getEndDate().isAfter(LocalDateTime.now()))
                 .collect(Collectors.toList());
     }
 
     private List<EventShortDto> getEventsByTitle(String title) {
         return this.eventRepository.findAllByTitle(title).stream()
                 .map(this::convertToEventShortDto)
+                .filter(e -> e.getEndDate().isAfter(LocalDateTime.now()))
                 .collect(Collectors.toList());
     }
 }
