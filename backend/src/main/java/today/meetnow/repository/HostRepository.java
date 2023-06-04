@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface HostRepository extends JpaRepository<HostEntity, Long> {
     Optional<HostEntity> findByUserId(Long userId);
     Optional<HostEntity> findByEventId(Long eventId);
-
+    boolean existsByUserId(Long id);
 }

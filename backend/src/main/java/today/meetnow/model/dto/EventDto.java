@@ -3,7 +3,6 @@ package today.meetnow.model.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.locationtech.jts.geom.Coordinate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,8 +19,7 @@ public class EventDto {
     private String description;
     private String type;
     private String image;
-    private Coordinate coordinates;
+    private Double[] coordinates;
     private HostDto host;
-    private List<ParticipantDto> participants;
-    private List<EventPostDto> posts;
+    private List<ParticipantShortDto> participants;
 }

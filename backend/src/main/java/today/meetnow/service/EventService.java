@@ -27,7 +27,6 @@ public class EventService {
     private final ParticipantRepository participantRepository;
     private final EventRepository eventRepository;
     private final HostRepository hostRepository;
-    private final EventPostRepository eventPostRepository;
     private final UserService userService;
     public List<EventDto> getParticipatedEvents() {
         var currentUserId = userService.getCurrentUserId();
@@ -37,7 +36,7 @@ public class EventService {
                 .map(this::convertToEventDto)
                 .collect(Collectors.toList());
     }
-    public EventDto convertToEventDto(EventEntity eventEntity) {
+    public EventShortDto convertToEventShortDto(EventEntity eventEntity) {
         Long eventId = eventEntity.getId();
         var optionalHostEntity = hostRepository.findByEventId(eventId);
         if (optionalHostEntity.isEmpty()) {
@@ -46,14 +45,30 @@ public class EventService {
         var hostEntity = optionalHostEntity.get();
         var hostDto = convertToHostDto(hostEntity);
 
-        List<ParticipantDto> participantDtoList = participantRepository.findAllByEventId(eventEntity.getId())
-                .stream()
-                .map(this::convertToParticipantDto)
-                .collect(Collectors.toList());
+        return EventShortDto.builder()
+                .id(eventEntity.getId())
+                .startDate(eventEntity.getStartDate())
+                .endDate(eventEntity.getEndDate())
+                .title(eventEntity.getTitle())
+                .description(eventEntity.getDescription())
+                .type(eventEntity.getType())
+                .image(eventEntity.getImage())
+                .host(hostDto)
+                .coordinates(convertPointToCoordinates(eventEntity.getCoordinates()))
+                .build();
+    }
+    private EventDto convertToEventDto(EventEntity eventEntity) {
+        Long eventId = eventEntity.getId();
+        var optionalHostEntity = hostRepository.findByEventId(eventId);
+        if (optionalHostEntity.isEmpty()) {
+            throw new IllegalStateException("No host of event with id " + eventId);
+        }
+        var hostEntity = optionalHostEntity.get();
+        var hostDto = convertToHostDto(hostEntity);
 
-        List<EventPostDto> eventPostDtoList = eventPostRepository.findAllByEventId(eventEntity.getId())
+        List<ParticipantShortDto> participantShortDtoList = participantRepository.findAllByEventId(eventEntity.getId())
                 .stream()
-                .map(this::convertToEventPostDto)
+                .map(this::convertToParticipantShortDto)
                 .collect(Collectors.toList());
 
         return EventDto.builder()
@@ -64,10 +79,9 @@ public class EventService {
                 .description(eventEntity.getDescription())
                 .type(eventEntity.getType())
                 .image(eventEntity.getImage())
-                .coordinates(eventEntity.getCoordinates().getCoordinates()[0])
+                .coordinates(convertPointToCoordinates(eventEntity.getCoordinates()))
+                .participants(participantShortDtoList)
                 .host(hostDto)
-                .participants(participantDtoList)
-                .posts(eventPostDtoList)
                 .build();
     }
     public HostDto convertToHostDto(HostEntity hostEntity) {
@@ -90,15 +104,14 @@ public class EventService {
                 .image(personalData.getImage())
                 .build();
     }
-    private EventPostDto convertToEventPostDto(EventPostEntity ent) {
-            return EventPostDto.builder()
-                    .id(ent.getId())
-                    .userId(ent.getUserId())
-                    .image(ent.getImage())
-                    .title(ent.getTitle())
-                    .build();
-    }
+    private ParticipantShortDto convertToParticipantShortDto(ParticipantEntity participantEntity) {
+        var personalData = userService.getUserPersonalData(participantEntity.getUser().getId());
 
+        return ParticipantShortDto.builder()
+                .id(participantEntity.getId())
+                .fullName(personalData.getFirstName() + " " + personalData.getLastName())
+                .build();
+    }
     @Transactional
     public EventDto createEvent(EventCreationDto eventCreationDto) {
         LocalDateTime startDate = eventCreationDto.getStartDate();
@@ -121,23 +134,34 @@ public class EventService {
         HostEntity host = new HostEntity();
         host.setEvent(event);
         host.setUser(user);
+        if (hostRepository.existsByUserId(user.getId())) {
+            throw new IllegalStateException("You cannot host two events at once!");
+        }
         hostRepository.save(host);
 
         return convertToEventDto(event);
     }
 
-    private Point convertCoordinatesToPoint(Coordinate coordinate) {
+    private Point convertCoordinatesToPoint(Double[] coordinates) {
         GeometryFactory factory = new GeometryFactory();
-        Coordinate[] coordinates = new Coordinate[] { coordinate };
-        CoordinateSequence coordinateSequence = new CoordinateArraySequence(coordinates);
+        Coordinate coordinate = new Coordinate(coordinates[0], coordinates[1]);
+        Coordinate[] coordinateArray = new Coordinate[] { coordinate };
+        CoordinateSequence coordinateSequence = new CoordinateArraySequence(coordinateArray);
 
         return new Point(coordinateSequence, factory);
     }
+    private Double[] convertPointToCoordinates(Point point) {
+        Double[] coordinates = new Double[2];
+        coordinates[0] = point.getX();
+        coordinates[1] = point.getY();
+        return coordinates;
+    }
 
-    public List<EventDto> getEventsByType(Type type) {
+
+    public List<EventShortDto> getEventsByType(Type type) {
         return eventRepository.findAllByType(type.getName())
                 .stream()
-                .map(this::convertToEventDto)
+                .map(this::convertToEventShortDto)
                 .collect(Collectors.toList());
     }
     @Transactional
@@ -171,9 +195,43 @@ public class EventService {
         return convertToEventDto(eventEntity);
     }
 
-    public List<EventDto> getAllEvents() {
+    public List<EventShortDto> getAllEvents() {
         return eventRepository.findAll().stream()
-                .map(this::convertToEventDto)
+                .map(this::convertToEventShortDto)
+                .collect(Collectors.toList());
+    }
+
+    public EventDto getEvent(Long eventId) {
+        Optional<EventEntity> optionalEventEntity = eventRepository.findById(eventId);
+        if (optionalEventEntity.isEmpty()) {
+            throw new IllegalArgumentException("No event of id " + eventId);
+        }
+        EventEntity eventEntity = optionalEventEntity.get();
+        return convertToEventDto(eventEntity);
+    }
+
+    public List<EventShortDto> getEventsBySearchFilters(SearchFiltersDto searchFiltersDto) {
+        if (searchFiltersDto.getType() == null && (searchFiltersDto.getTitle() == null || searchFiltersDto.getTitle().isBlank())) {
+            return getAllEvents();
+        }
+        if (searchFiltersDto.getTitle() == null || searchFiltersDto.getTitle().toString().isBlank()) {
+            return getEventsByType(searchFiltersDto.getType());
+        }
+        if (searchFiltersDto.getType() == null || searchFiltersDto.getType().toString().isBlank()) {
+            return getEventsByTitle(searchFiltersDto.getTitle());
+        }
+        return getEventsByTypeAndTitle(searchFiltersDto.getType(), searchFiltersDto.getTitle());
+    }
+
+    private List<EventShortDto> getEventsByTypeAndTitle(Type type, String title) {
+        return this.eventRepository.findAllByTypeAndTitle(type.getName(), title).stream()
+                .map(this::convertToEventShortDto)
+                .collect(Collectors.toList());
+    }
+
+    private List<EventShortDto> getEventsByTitle(String title) {
+        return this.eventRepository.findAllByTitle(title).stream()
+                .map(this::convertToEventShortDto)
                 .collect(Collectors.toList());
     }
 }
