@@ -55,7 +55,9 @@ const EventsDataProvider = ({ children }: Props) => {
         };
         return event;
       });
-      setEvents(events);
+      const eventsFromFile = getEvents(typeQuery, searchQuery, collection);
+      const allEvents = [...events, ...eventsFromFile];
+      setEvents(allEvents);
       setLoading(false);
     });
   }, [typeQuery, searchQuery, collection]);
