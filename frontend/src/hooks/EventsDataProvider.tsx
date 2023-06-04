@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { Event } from "../types/types";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Event, EventDTO } from "../types/types";
 import getEvents from "./getEvents";
+import fetchApi from "../utils/fetchApi";
 
 interface EventsDataContextType {
   events: Event[];
@@ -26,17 +27,44 @@ const EventsDataProvider = ({ children }: Props) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [collection, setCollection] = useState<"events" | "memories">("events");
+  const [events, setEvents] = useState<Event[]>([]);
 
-  const loadEvents = useCallback(() => {
+  useEffect(() => {
     setLoading(true);
-    const events = getEvents(typeQuery, searchQuery, collection);
-    setLoading(false);
-    return events;
+    setEvents([]);
+
+    const typeString = typeQuery === "friendsActivity" ? "PARTY" : typeQuery === "publicEvents" ? "SPORT" : "";
+    const searchQueryString = `/api/events/search?type=${typeString}&title=${searchQuery}`;
+    fetchApi(searchQueryString, { method: "GET" }).then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
+      throw new Error("Error fetching events");
+    }).then((eventDTOs: EventDTO[]) => {
+      console.log(eventDTOs);
+      const events = eventDTOs.map((eventDTO) => {
+        const type = eventDTO.type === "PARTY" ? "friendsActivity" : eventDTO.type === "SPORT" ? "publicEvents" : "";
+        const event: Event = {
+          id: eventDTO.id,
+          title: eventDTO.title,
+          description: eventDTO.description,
+          participants: [],
+          coordinates: eventDTO.coordinates,
+          type,
+          image: eventDTO.image,
+        };
+        return event;
+      });
+      setEvents(events);
+      setLoading(false);
+    });
   }, [typeQuery, searchQuery, collection]);
+
+
 
   const value = useMemo(() => {
     const eventsData = {
-      events: loadEvents(),
+      events,
       typeQuery,
       setTypeQuery,
       searchQuery,
@@ -46,7 +74,7 @@ const EventsDataProvider = ({ children }: Props) => {
       loading,
     } as EventsDataContextType;
     return eventsData;
-  }, [typeQuery, searchQuery, loadEvents, collection, loading]);
+  }, [typeQuery, searchQuery, collection, loading, events]);
 
   return (
     <EventsDataContext.Provider value={value}>

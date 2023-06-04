@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Map, Marker } from "pigeon-maps";
 
 interface CoordinatesInputProps {
-  onCoordinateChange: (coordinates: [number, number] | null) => void;
+  onCoordinateChange: (coordinates: [number, number]) => void;
 }
 
 const CoordinatesInput: React.FC<CoordinatesInputProps> = ({
@@ -21,7 +21,7 @@ const CoordinatesInput: React.FC<CoordinatesInputProps> = ({
 
   const handleClearCoordinates = () => {
     setCoordinates(null);
-    onCoordinateChange(null);
+    onCoordinateChange([0, 0]);
   };
 
   return (

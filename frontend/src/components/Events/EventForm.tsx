@@ -21,7 +21,7 @@ interface EventCreationDto {
   title: string;
   description: string;
   type: Type | null;
-  coordinates: { x: number; y: number } | null;
+  coordinates: [number, number];
 }
 
 interface Props {
@@ -40,7 +40,7 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
     title: "",
     description: "",
     type: null,
-    coordinates: null,
+    coordinates: [0, 0],
   });
 
   const { startDate, endDate, title, description, type, coordinates } =
@@ -77,9 +77,9 @@ const EventForm: React.FC<Props> = ({ onSuccess }) => {
 
   const [formCoordinates, setFormCoordinates] = useState<[number, number] | null>(null);
 
-  const handleCoordinateChange = (newCoordinates: [number, number] | null) => {
+  const handleCoordinateChange = (newCoordinates: [number, number]) => {
     setFormCoordinates(newCoordinates);
-    setEventData({ ...eventData, coordinates: newCoordinates ? { x: newCoordinates[0], y: newCoordinates[1] } : null });
+    setEventData({ ...eventData, coordinates: [newCoordinates[1], newCoordinates[0]] });
   };
   return (
     <Form onSubmit={onSubmitHandler}>

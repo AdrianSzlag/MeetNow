@@ -13,4 +13,21 @@ interface Event {
   image: string;
 }
 
-export type { User, Event };
+interface EventDTO {
+  coordinates: Array<number>;
+  description: string;
+  endDate: string;
+  host: {
+    firstName: string;
+    lastName: string;
+    id: number;
+    image: string;
+  };
+  id: number;
+  image: string;
+  startDate: string;
+  title: string;
+  type: "EVENT" | "PARTY" | "SPORT";
+}
+
+export type { User, Event, EventDTO };
