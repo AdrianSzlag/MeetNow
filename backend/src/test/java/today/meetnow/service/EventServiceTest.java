@@ -89,7 +89,5 @@ public class EventServiceTest {
         when(hostRepository.findByEventId(TestDataProvider.ID)).thenReturn(Optional.of(hostEntity));
         when(userService.getUserPersonalData(anyLong())).thenReturn(userPersonalDataEntity);
         when(participantRepository.findAllByEventId(anyLong())).thenReturn(new ArrayList<>());
-        when(eventPostRepository.findAllByEventId(anyLong())).thenReturn(new ArrayList<>());
     }
-
 }

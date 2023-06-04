@@ -16,6 +16,8 @@ import today.meetnow.model.enums.Type;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+
 @Component
 public class TestDataProvider {
     private static final LocalDateTime START_DATE = LocalDateTime.now();
@@ -25,6 +27,7 @@ public class TestDataProvider {
     private static final Type TYPE = Type.SPORT;
     private static final String IMAGE_URL = "http://wrzutka.pl/zdjecie2136";
     private static final Coordinate COORDINATES = new Coordinate(21.36, 21.38);
+    private static final Double[] doubleCoordinates = new Double[]{41.41, 41.42};
     private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
     public static final Long ID = Long.valueOf(-2136);
 
@@ -37,7 +40,7 @@ public class TestDataProvider {
                 .description(DESCRIPTION)
                 .type(TYPE)
                 .image(IMAGE_URL)
-                .coordinates(COORDINATES)
+                .coordinates(doubleCoordinates)
                 .build();
     }
 
