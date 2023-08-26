@@ -78,3 +78,8 @@ Once the Docker containers are up, the application should be available at http:/
 
 ## API Documentation
 Backend functionality is documented with Swagger UI (http://localhost:8080/swagger-ui/)
+
+## About The Project
+MeetNow is a platform for organizing and discovering local meetups and events, designed to help you explore your community and meet new friends. This application was initially conceived as a hackathon project and has since been under active development. For more background, you can check out the original: [2023 Kościuszkon submission](https://github.com/Bartosz-Slowik/Tuptup-Hackaton).
+
+### Happy Meeting!
