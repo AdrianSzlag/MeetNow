@@ -1,5 +1,5 @@
 # MeetNow :calendar: :pushpin:
-## Connect, Celebrate, and Explore: MeetNow brings your events to life on an interactive map!
+### Connect, Celebrate, and Explore: MeetNow brings your events to life on an interactive map!
 
 https://github.com/AdrianSzlag/MeetNow/assets/92638498/7910bd4b-7d5b-468a-912b-95f0d1a6a8ef
 
